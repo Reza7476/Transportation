@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Linq;
 using System.Net.WebSockets;
 using Tranportation.Entities.Buses;
 using Tranportation.Entities.Enums;
@@ -137,12 +138,8 @@ public class Terminal
             {
                 case 1:
                     {
-                        ticket.TicketType = TypeTicket.Buy;
                         string amountPaid = ticket.Cost.ToString();
-                        ticket.changeCostToGetAllAmount(ticket.Cost, ticket.TicketPrice);
-                        seatNum.SeatNumber = "bb";
-                        trip.SetBenefit(ticket.Cost);
-                        _db.SaveChanges();
+                        BuyBookedTicket(ticket.Id, seatNum.Id, tripId);
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($" \t  Ticket Number:{ticket.Id}\n" +
                             $"\t  Seat Number: {ticket.SeatNumber}\n" +
@@ -154,10 +151,8 @@ public class Terminal
                     }
                 case 2:
                     {
-
                         throw new Exception("chose correct option");
-
-                        break;
+                      
                     }
                 default:
                     {
@@ -171,24 +166,43 @@ public class Terminal
         }
         else
         {
-            BuyTicket buy = new(seatNumber, trip.TripPrice, tripId);
-            _db.Tickets.Add(buy);
-            trip.DecreasNumberOfEmptySeat();
-            seatNum.SeatNumber = "bb";
-            _db.SaveChanges();
-            var SetTicket = _db.Buy.FirstOrDefault(x => x.TripId == tripId && x.SeatNumber == seatNumber);
-            trip.SetBenefit(trip.TripPrice);
-            _db.SaveChanges();
+            SaleTicket( seatNumber, tripId, seatNum.Id);
+            var SetTicket = _db.Buy.FirstOrDefault(x => x.TripId == tripId && x.SeatNumber == seatNumber&&x.CancelTicket==0);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($" \t TicketNumber:{SetTicket.Id}\n" +
                 $"\t SeatNumber: {SetTicket.SeatNumber}\n" +
                 $"\t TicketType: {SetTicket.TicketType}\n" +
                 $"\t The amount payable: {SetTicket.TicketPrice}");
             Console.ResetColor();
-
         }
     }
 
+    public static void SaleTicket(string seatNumber,int tripId ,int seatId)
+    {
+
+
+        var trip = _db.Trips.First(x => x.Id == tripId);
+        var seat = _db.Seats.First(x => x.Id == seatId);
+        BuyTicket buy = new(seatNumber,trip.TripPrice , tripId);
+        _db.Tickets.Add(buy);
+        trip.DecreasNumberOfEmptySeat();
+        trip.SetBenefit(trip.TripPrice);
+        seat.ChangeSeatStatusToBuy();
+
+        _db.SaveChanges();
+    }
+
+    public static void BuyBookedTicket(int ticketId,int seatId,int tripId)
+    {
+        var ticket = _db.Tickets.First(x => x.Id == ticketId);
+        var seat=_db.Seats.First(x=>x.Id==seatId);
+        seat.ChangeSeatStatusToBuy();
+        ticket.ChangeCostToGetAllAmount(ticket.Cost, ticket.TicketPrice);
+        ticket.TicketType = TypeTicket.Buy;
+        var trip = _db.Trips.First(x => x.Id == tripId);
+        trip.SetBenefit(ticket.Cost);
+        _db.SaveChanges();
+    }
     public static void ReserveTicket(int tripId, int seatNumb)
     {
         string seatNumber = "";
@@ -205,16 +219,16 @@ public class Terminal
         {
             throw new Exception("invalid input");
         }
-        var seat = _db.Seats.Where(_ => _.TripId == tripId && _.SeatNumber == seatNumber).FirstOrDefault(); ;
+        var seat = _db.Seats.Where(_ => _.TripId == tripId && _.SeatNumber == seatNumber).FirstOrDefault(); 
         if (seat == null)
         {
             throw new Exception($"this ticket is sold or reserved");
         }
         var tripPrice = trip.TripPrice;
-        ReserveTicket reserve = new(seatNumber, tripPrice, tripId);
+        ReserveTicket reserve = new(seatNumber, trip.TripPrice, tripId);
         _db.Tickets.Add(reserve);
         trip.DecreasNumberOfEmptySeat();
-        seat.SeatNumber = "rr";
+        seat.ChangeSeatStatusTobook();
         _db.SaveChanges();
         var ticket = trip.Tickets.Find(x => x.SeatNumber == seatNumber);
         trip.SetBenefit(ticket!.Cost);

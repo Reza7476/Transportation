@@ -1,4 +1,5 @@
-﻿using Tranportation.Entities.Buses;
+﻿using System.Net.Sockets;
+using Tranportation.Entities.Buses;
 using Tranportation.Entities.Enums;
 using Tranportation.Entities.Seats;
 using Tranportation.Entities.Tickets;
@@ -51,6 +52,13 @@ public abstract class Trip
         Capacity-= 1;
     }
 
+
+
+    public  void IncreaseNumberOfEmptySeats()
+    {
+        EmptySeat += 1;
+        Capacity += 1;
+    }
     public abstract void ChangeSetStatusFromEmptyToNext(string status);
 
     public abstract decimal SetTripPrice(decimal price);
@@ -66,5 +74,6 @@ public abstract class Trip
         Benefit = Benefit- newBenefit;
     }
 
+  
 
 }

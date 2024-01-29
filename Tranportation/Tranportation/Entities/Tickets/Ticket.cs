@@ -1,4 +1,5 @@
-﻿using Tranportation.Entities.Enums;
+﻿using System.Net.Sockets;
+using Tranportation.Entities.Enums;
 using Tranportation.Entities.Trips;
 
 namespace Tranportation.Entities.Tickets;
@@ -36,5 +37,12 @@ public abstract class Ticket
 
         Cost = tripPrice - reserveCost;
     }
-
+    public void ReturnRestOfAmountOfBookedCalncel()
+    {
+        Cost = Cost - Cost * 0.2m;
+    }
+    public void ReturnRestOfAmountOfSoldCalncel()
+    {
+        Cost = TicketPrice - TicketPrice * 0.1m;
+    }
 }

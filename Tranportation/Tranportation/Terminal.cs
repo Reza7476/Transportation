@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Net.WebSockets;
 using Tranportation.Entities.Buses;
 using Tranportation.Entities.Enums;
@@ -13,13 +14,9 @@ public class Terminal
     static TransportationDb _db = new TransportationDb();
 
     public static int Run(ConsoleKeyInfo a)
-    
     {
-
-       if(a.Key==ConsoleKey.M  || a.Key==ConsoleKey.Escape)
-
+        if (a.Key == ConsoleKey.M || a.Key == ConsoleKey.Escape)
         {
-
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("Chose an option\n" +
                 "\t 1: Introduce Bus\n" +
@@ -38,7 +35,6 @@ public class Terminal
         {
             return 8;
         }
-        
     }
 
     public static void Report()
@@ -72,29 +68,37 @@ public class Terminal
         {
             seatNumber = seatNumb.ToString();
         }
+
         var trip = _db.Trips.FirstOrDefault(x => x.Id == tripId);
         var seat = _db.Seats.Where(_ => _.TripId == tripId).ToList();
         var seatNum = seat.ElementAt(seatNumb - 1);
-        var ticket = _db.Tickets.FirstOrDefault(x => x.TripId == tripId && x.SeatNumber == seatNumber);
+        var ticket = _db.Tickets
+            .FirstOrDefault(x => x.TripId == tripId && x.SeatNumber == seatNumber && x.CancelTicket == 0);
         decimal returnPriceToCustomer = 0m;
         if (seatNum.SeatNumber == "rr")
         {
-            returnPriceToCustomer = ticket.Cost - ticket.Cost * 0.2m;
+
+            var recievedAmount = ticket.Cost;
+            ticket.ReturnRestOfAmountOfBookedCalncel();
             ticket.CancelTicket = 1;
-            trip.DecreaseBenefit(returnPriceToCustomer);
-            trip.EmptySeat += 1;
-            trip.Capacity += 1;
+
+            _db.SaveChanges();
+            returnPriceToCustomer = ticket.Cost;
+            trip.DecreaseBenefit(ticket.Cost);
+            trip.IncreaseNumberOfEmptySeats();
+
             seatNum.SeatNumber = seatNumber;
             _db.SaveChanges();
 
         }
         else if (seatNum.SeatNumber == "bb")
         {
-            returnPriceToCustomer = ticket.TicketPrice - ticket.TicketPrice * 0.1m;
+            ticket.ReturnRestOfAmountOfSoldCalncel();
             ticket.CancelTicket = 1;
-            trip.DecreaseBenefit(returnPriceToCustomer);
-            trip.EmptySeat += 1;
-            trip.Capacity += 1;
+            _db.SaveChanges();
+            returnPriceToCustomer = ticket.Cost;
+            trip.DecreaseBenefit(ticket.Cost);
+            trip.IncreaseNumberOfEmptySeats();
             seatNum.SeatNumber = seatNumber;
             _db.SaveChanges();
         }
@@ -104,10 +108,11 @@ public class Terminal
         }
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"\t ticket canceled return amount: {returnPriceToCustomer.ToString()}");
+        Console.WriteLine($"\t ticket canceled return amount: {returnPriceToCustomer}");
         Console.ResetColor();
 
     }
+
 
     public static void BuyTicket(int tripId, int seatNumb)
     {
@@ -166,11 +171,10 @@ public class Terminal
         }
         else
         {
-            var setSeat = _db.Seats.Where(_ => _.TripId == tripId).First();
             BuyTicket buy = new(seatNumber, trip.TripPrice, tripId);
             _db.Tickets.Add(buy);
             trip.DecreasNumberOfEmptySeat();
-            setSeat.SeatNumber = "bb";
+            seatNum.SeatNumber = "bb";
             _db.SaveChanges();
             var SetTicket = _db.Buy.FirstOrDefault(x => x.TripId == tripId && x.SeatNumber == seatNumber);
             trip.SetBenefit(trip.TripPrice);
@@ -215,7 +219,6 @@ public class Terminal
         var ticket = trip.Tickets.Find(x => x.SeatNumber == seatNumber);
         trip.SetBenefit(ticket!.Cost);
         _db.SaveChanges();
-
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"\t   ticketNumber: {ticket.Id} \n" +
             $"\t   SeatNumber: {ticket.SeatNumber}\n" +
@@ -408,7 +411,7 @@ public class Terminal
                 vlue += readKey.KeyChar;
                 Console.Write(readKey.KeyChar);
             }
-           // vlue = "";
+            // vlue = "";
         } while (exe);
         return vlue;
     }
@@ -417,9 +420,9 @@ public class Terminal
     {
         Console.WriteLine();
         Console.WriteLine($"\t {message}");
-      
+
         bool exe = true;
-        string vlue ="" ;
+        string vlue = "";
         do
         {
             ConsoleKeyInfo readKey = Console.ReadKey(true);
@@ -432,21 +435,17 @@ public class Terminal
             {
                 if (readKey.Key == ConsoleKey.Enter)
                 {
-
                     Console.Write(readKey.KeyChar);
-                   
                     return int.Parse(vlue);
                 }
                 else
                 {
                     vlue += readKey.KeyChar;
                     Console.Write(readKey.KeyChar);
-                  
-
                 }
-               
+
             }
-         
+
         } while (exe);
         Console.WriteLine();
         return int.Parse(vlue);

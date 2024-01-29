@@ -3466,11 +3466,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Reza\\Desktop\\1111\\Tranportation\\Tranportation\\Tranportation.csproj",
+      "projectUniqueName": "C:\\Users\\Reza\\Desktop\\3333\\Transportation\\Tranportation\\Tranportation\\Tranportation.csproj",
       "projectName": "Tranportation",
-      "projectPath": "C:\\Users\\Reza\\Desktop\\1111\\Tranportation\\Tranportation\\Tranportation.csproj",
+      "projectPath": "C:\\Users\\Reza\\Desktop\\3333\\Transportation\\Tranportation\\Tranportation\\Tranportation.csproj",
       "packagesPath": "C:\\Users\\Reza\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Reza\\Desktop\\1111\\Tranportation\\Tranportation\\obj\\",
+      "outputPath": "C:\\Users\\Reza\\Desktop\\3333\\Transportation\\Tranportation\\Tranportation\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Reza\\AppData\\Roaming\\NuGet\\NuGet.Config",

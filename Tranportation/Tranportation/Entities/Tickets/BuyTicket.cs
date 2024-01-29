@@ -22,5 +22,8 @@ public class BuyTicket : Ticket
         Cost = ticketPrice;
     }
 
-    
+   public void GetReturnAmount()
+    {
+
+    }
 }

@@ -11,8 +11,8 @@ using Tranportation;
 namespace Tranportation.Migrations
 {
     [DbContext(typeof(TransportationDb))]
-    [Migration("20240126193348_create table")]
-    partial class createtable
+    [Migration("20240129040427_create")]
+    partial class create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

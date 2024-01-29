@@ -10,4 +10,14 @@ public class Seat
     public int TripId { get; set; }
     public Trip Trip { get; set; }
 
+
+
+    public void ChangeSeatStatusToBuy()
+    {
+        SeatNumber = "bb";
+    }
+    public void ChangeSeatStatusTobook()
+    {
+        SeatNumber = "rr";
+    } 
 }

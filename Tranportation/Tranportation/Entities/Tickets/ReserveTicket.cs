@@ -23,7 +23,7 @@ public class ReserveTicket : Ticket
         Cost = ticketPrice * 0.3m;
     }
 
-    public override void changeCostToGetAllAmount(decimal reserveCost,decimal tripPrice)
+    public override void ChangeCostToGetAllAmount(decimal reserveCost,decimal tripPrice)
     {
 
         Cost =  tripPrice-reserveCost;

@@ -32,15 +32,19 @@ public abstract class Ticket
 
     public abstract void SetCost(decimal cost);
 
-    public virtual void changeCostToGetAllAmount(decimal reserveCost, decimal tripPrice)
+    public virtual void ChangeCostToGetAllAmount(decimal reserveCost, decimal tripPrice)
     {
 
         Cost = tripPrice - reserveCost;
     }
+   
+    
     public void ReturnRestOfAmountOfBookedCalncel()
     {
         Cost = Cost - Cost * 0.2m;
     }
+    
+    
     public void ReturnRestOfAmountOfSoldCalncel()
     {
         Cost = TicketPrice - TicketPrice * 0.1m;
